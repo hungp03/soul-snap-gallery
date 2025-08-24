@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Photo } from './entities/photo.entity';
-import { CreatePhotoDto } from './dto/create-photo.dto';
-import { UpdatePhotoDto } from './dto/update-photo.dto';
-import { PhotoFilterDto } from './dto/photo-filter.dto';
-import { createPaginationResult } from '../../common/utils/pagination.util';
-import { PaginationResult } from '../../common/interfaces/pagination.interface';
+import { Photo } from '@photos/entities/photo.entity';
+import { CreatePhotoDto } from '@photos/dto/create-photo.dto';
+import { UpdatePhotoDto } from '@photos/dto/update-photo.dto';
+import { PhotoFilterDto } from '@photos/dto/photo-filter.dto';
+import { createPaginationResult } from '@common/utils/pagination.util';
+import { PaginationResult } from '@common/interfaces/pagination.interface';
 
 @Injectable()
 export class PhotosService {

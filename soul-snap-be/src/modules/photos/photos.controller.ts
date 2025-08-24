@@ -9,13 +9,13 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { PhotosService } from './photos.service';
-import { CreatePhotoDto } from './dto/create-photo.dto';
-import { UpdatePhotoDto } from './dto/update-photo.dto';
-import { PhotoFilterDto } from './dto/photo-filter.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity';
+import { PhotosService } from '@photos/photos.service';
+import { CreatePhotoDto } from '@photos/dto/create-photo.dto';
+import { UpdatePhotoDto } from '@photos/dto/update-photo.dto';
+import { PhotoFilterDto } from '@photos/dto/photo-filter.dto';
+import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
+import { CurrentUser } from '@common/decorators/current-user.decorator';
+import { User } from '@users/entities/user.entity';
 
 @Controller('photos')
 @UseGuards(JwtAuthGuard)

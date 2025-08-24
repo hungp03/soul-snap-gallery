@@ -9,13 +9,13 @@ import {
   UseGuards,
   Query,
 } from '@nestjs/common';
-import { AlbumsService } from './albums.service';
-import { CreateAlbumDto } from './dto/create-album.dto';
-import { UpdateAlbumDto } from './dto/update-album.dto';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { User } from '../users/entities/user.entity';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { AlbumsService } from '@albums/albums.service';
+import { CreateAlbumDto } from '@albums/dto/create-album.dto';
+import { UpdateAlbumDto } from '@albums/dto/update-album.dto';
+import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
+import { CurrentUser } from '@common/decorators/current-user.decorator';
+import { User } from '@users/entities/user.entity';
+import { PaginationDto } from '@common/dto/pagination.dto';
 
 @Controller('albums')
 @UseGuards(JwtAuthGuard)

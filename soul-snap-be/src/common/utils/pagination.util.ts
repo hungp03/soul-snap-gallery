@@ -1,4 +1,4 @@
-import { PaginationResult } from '../interfaces/pagination.interface';
+import { PaginationResult } from '@common/interfaces/pagination.interface';
 
 export function createPaginationResult<T>(
   data: T[],

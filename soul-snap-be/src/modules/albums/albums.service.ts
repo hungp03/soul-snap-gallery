@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Album } from './entities/album.entity';
-import { CreateAlbumDto } from './dto/create-album.dto';
-import { UpdateAlbumDto } from './dto/update-album.dto';
-import { PaginationDto } from '../../common/dto/pagination.dto';
-import { createPaginationResult } from '../../common/utils/pagination.util';
-import { PaginationResult } from '../../common/interfaces/pagination.interface';
+import { Album } from '@albums/entities/album.entity';
+import { CreateAlbumDto } from '@albums/dto/create-album.dto';
+import { UpdateAlbumDto } from '@albums/dto/update-album.dto';
+import { PaginationDto } from '@common/dto/pagination.dto';
+import { createPaginationResult } from '@common/utils/pagination.util';
+import { PaginationResult } from '@common/interfaces/pagination.interface';
 
 @Injectable()
 export class AlbumsService {

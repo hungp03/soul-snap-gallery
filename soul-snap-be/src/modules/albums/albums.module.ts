@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AlbumsService } from './albums.service';
-import { AlbumsController } from './albums.controller';
-import { Album } from './entities/album.entity';
+import { AlbumsService } from '@albums/albums.service';
+import { AlbumsController } from '@albums/albums.controller';
+import { Album } from '@albums/entities/album.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Album])],

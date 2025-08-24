@@ -13,7 +13,17 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": "./src",
+    "paths": {
+      "@common/*": ["common/*"],
+      "@config/*": ["config/*"],
+      "@modules/*": ["modules/*"],
+      "@albums/*": ["modules/albums/*"],
+      "@auth/*": ["modules/auth/*"],
+      "@photos/*": ["modules/photos/*"],
+      "@upload/*": ["modules/upload/*"],
+      "@users/*": ["modules/users/*"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,

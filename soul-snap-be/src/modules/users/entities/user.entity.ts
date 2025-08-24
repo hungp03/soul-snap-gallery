@@ -4,7 +4,7 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
 } from 'typeorm';
-import { Album } from '../../albums/entities/album.entity';
+import { Album } from '@albums/entities/album.entity';
 
 @Entity('users')
 export class User {

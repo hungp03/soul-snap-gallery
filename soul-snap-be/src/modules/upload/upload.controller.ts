@@ -8,10 +8,10 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { UploadService } from './upload.service';
-import { PhotosService } from '../photos/photos.service';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { UploadPhotoDto } from './dto/upload-photo-dto';
+import { UploadService } from '@upload/upload.service';
+import { PhotosService } from '@photos/photos.service';
+import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
+import { UploadPhotoDto } from '@modules/upload/dto/upload-photo.dto';
 
 @Controller('upload')
 @UseGuards(JwtAuthGuard)

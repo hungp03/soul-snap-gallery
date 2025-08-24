@@ -7,7 +7,7 @@ import {
     UpdateDateColumn,
     JoinColumn,
 } from 'typeorm';
-import { Album } from '../../albums/entities/album.entity';
+import { Album } from '@albums/entities/album.entity';
 
 @Entity('photos')
 export class Photo {

@@ -3,17 +3,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
-import { AlbumsModule } from './modules/albums/albums.module';
-import { PhotosModule } from './modules/photos/photos.module';
-import { UploadModule } from './modules/upload/upload.module';
-import databaseConfig from './config/database.config';
-import jwtConfig from './config/jwt.config';
-import s3Config from './config/s3.config';
-import { User } from './modules/users/entities/user.entity';
-import { Album } from './modules/albums/entities/album.entity';
-import { Photo } from './modules/photos/entities/photo.entity';
+import { AuthModule } from '@auth/auth.module';
+import { UsersModule } from '@users/users.module';
+import { AlbumsModule } from '@albums/albums.module';
+import { PhotosModule } from '@photos/photos.module';
+import { UploadModule } from '@upload/upload.module';
+import databaseConfig from '@config/database.config';
+import jwtConfig from '@config/jwt.config';
+import s3Config from '@config/s3.config';
+import { User } from '@users/entities/user.entity';
+import { Album } from '@albums/entities/album.entity';
+import { Photo } from '@photos/entities/photo.entity';
 
 @Module({
   imports: [
