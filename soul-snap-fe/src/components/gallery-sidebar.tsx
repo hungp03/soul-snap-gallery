@@ -43,7 +43,6 @@ export function GallerySidebar({
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
-      {/* Header */}
       <div className="p-6 border-b border-gallery-border">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-foreground">SoulSnap</h1>
@@ -111,7 +110,6 @@ export function GallerySidebar({
         </ul>
       </nav>
 
-      {/* Theme Toggle & Logout */}
       <div className="p-4 border-t border-gallery-border space-y-2">
         <Button
           variant="ghost"
@@ -140,7 +138,6 @@ export function GallerySidebar({
 
   return (
     <>
-      {/* Mobile Menu Button */}
       <Button
         variant="ghost"
         size="icon"
@@ -150,7 +147,6 @@ export function GallerySidebar({
         <Menu className="h-4 w-4" />
       </Button>
 
-      {/* Mobile Overlay */}
       {isMobileOpen && (
         <div 
           className="fixed inset-0 bg-black/50 z-40 md:hidden"
@@ -158,7 +154,6 @@ export function GallerySidebar({
         />
       )}
 
-      {/* Sidebar */}
       <aside className={cn(
         "fixed left-0 top-0 z-50 h-full w-72 bg-gallery-surface border-r border-gallery-border transition-transform duration-300 md:relative md:translate-x-0",
         isMobileOpen ? "translate-x-0" : "-translate-x-full"

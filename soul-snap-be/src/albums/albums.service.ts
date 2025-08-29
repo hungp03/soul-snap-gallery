@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Album } from 'albums/entities/album.entity';
@@ -8,11 +8,14 @@ import { UpdateAlbumDto } from 'albums/dto/update-album.dto';
 import { PaginationDto } from '@common/dto/pagination.dto';
 import { createPaginationResult } from '@common/utils/pagination.util';
 import { PaginationResult } from '@common/interfaces/pagination.interface';
+import { Photo } from '@photos/entities/photo.entity';
 @Injectable()
 export class AlbumsService {
   constructor(
     @InjectRepository(Album)
     private albumsRepository: Repository<Album>,
+    @InjectRepository(Photo) 
+    private readonly photosRepository: Repository<Photo>,
     private s3Service: S3Service,
   ) {}
 
@@ -109,6 +112,17 @@ export class AlbumsService {
 
   async remove(userId: number, albumId: number): Promise<void> {
     const album = await this.findOne(userId, albumId);
+
+    const photoCount = await this.photosRepository.count({
+      where: { albumId: album.albumId },
+    });
+
+    if (photoCount > 0) {
+      throw new BadRequestException(
+        `Album is not empty (${photoCount} photos). Please delete all photos first.`,
+      );
+    }
+
     await this.albumsRepository.remove(album);
   }
 }

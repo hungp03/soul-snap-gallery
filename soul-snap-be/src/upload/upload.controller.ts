@@ -8,43 +8,39 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { UploadService } from 'upload/upload.service';
-import { PhotosService } from 'photos/photos.service';
 import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import { UploadPhotoDto } from 'upload/dto/upload-photo.dto';
+import { CurrentUser } from '@common/decorators/current-user.decorator';
+import { User } from '@users/entities/user.entity';
+import { UploadService } from './upload.service';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 @Controller('upload')
 @UseGuards(JwtAuthGuard)
 export class UploadController {
-  constructor(
-    private readonly uploadService: UploadService,
-    private readonly photosService: PhotosService,
-  ) { }
+  constructor(private readonly uploadService: UploadService) {}
 
   @Post('photos')
-  @UseInterceptors(FilesInterceptor('files', 10)) // field name: "files", max 10
+  @UseInterceptors(
+    FilesInterceptor('files', 10, {
+      limits: { fileSize: MAX_FILE_SIZE },
+      fileFilter: (req, file, callback) => {
+        if (!file.mimetype.startsWith('image/')) {
+          return callback(
+            new BadRequestException('Only image files are allowed'),
+            false,
+          );
+        }
+        callback(null, true);
+      },
+    }),
+  )
   async uploadPhotos(
     @UploadedFiles() files: Express.Multer.File[],
     @Body() uploadDto: UploadPhotoDto,
+    @CurrentUser() user: User,
   ) {
-    if (!files || files.length === 0) {
-      throw new BadRequestException('No files uploaded');
-    }
-
-    const results: any[] = [];
-    for (const file of files) {
-      const { filePath, thumbnail } = await this.uploadService.uploadPhoto(file);
-
-      const photo = await this.photosService.create({
-        albumId: uploadDto.albumId,
-        filePath,
-        thumbnail,
-        title: uploadDto.title,
-      });
-
-      results.push(photo);
-    }
-
-    return results;
+    return this.uploadService.uploadPhotos(files, uploadDto, user);
   }
 }

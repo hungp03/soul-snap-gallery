@@ -1,9 +1,10 @@
-import { Type } from 'class-transformer';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UploadPhotoDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => parseInt(value))
   @IsNumber()
-  @Type(() => Number)
   albumId: number;
 
   @IsOptional()

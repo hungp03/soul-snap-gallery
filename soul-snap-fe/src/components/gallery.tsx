@@ -1,170 +1,169 @@
-import { useEffect, useState } from "react"
-import { ArrowLeft, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { GallerySidebar } from "./gallery-sidebar"
-import { AlbumGrid } from "./album-grid"
-import { PhotoGrid } from "./photo-grid"
-import { Pagination } from "./pagination"
-import { UploadModal } from "./upload-modal"
-import { ViewMode, Album, Photo } from "@/types/gallery"
-import {toast} from "sonner"
-import { getAlbums, getPhotos, toggleFavorite, toggleSoftDelete, hardDelete } from "@/lib/api"
+// src/components/Gallery.tsx
+import { useEffect, useState } from "react";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GallerySidebar } from "./gallery-sidebar";
+import { AlbumGrid } from "./album-grid";
+import { PhotoGrid } from "./photo-grid";
+import { Pagination } from "./pagination";
+import { UploadModal } from "./upload-modal";
+import { CreateAlbumModal } from "@/components/create-album-model";
+import { ViewMode, Album, Photo } from "@/types/gallery";
+import { toast } from "sonner";
+import { useGallery } from "@/contexts/gallery-context";
+import { getPhotos, toggleFavorite, toggleSoftDelete, hardDelete, createAlbum, deleteAlbum } from "@/lib/api";
 
 export function Gallery() {
-  const [currentView, setCurrentView] = useState<ViewMode>("all-photos")
-  const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null)
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
+  const [currentView, setCurrentView] = useState<ViewMode>("all-photos");
+  const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isCreateAlbumModalOpen, setIsCreateAlbumModalOpen] = useState(false);
 
-  // Albums state
-  const [albums, setAlbums] = useState<Album[]>([])
-  const [loadingAlbums, setLoadingAlbums] = useState(false)
-  const [errorAlbums, setErrorAlbums] = useState<string | null>(null)
+  // Album context
+  const {
+    albums,
+    isLoading: loadingAlbums,
+    error: errorAlbums,
+    refreshAlbums,
+  } = useGallery();
 
   // Photos state
-  const [photos, setPhotos] = useState<Photo[]>([])
-  const [loadingPhotos, setLoadingPhotos] = useState(false)
-  const [errorPhotos, setErrorPhotos] = useState<string | null>(null)
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
+  const [errorPhotos, setErrorPhotos] = useState<string | null>(null);
   const [photosPagination, setPhotosPagination] = useState({
     currentPage: 1,
     totalPages: 1,
     total: 0,
-  })
+  });
 
-  // Load albums
   useEffect(() => {
-    if (currentView !== "albums") return
-    let mounted = true
-    ;(async () => {
-      try {
-        setLoadingAlbums(true)
-        setErrorAlbums(null)
-        const res = await getAlbums({ page: 1, limit: 20 })
-        if (mounted) setAlbums(res.data)
-      } catch (err: any) {
-        if (mounted) setErrorAlbums(err.message ?? "Lỗi tải albums")
-      } finally {
-        if (mounted) setLoadingAlbums(false)
+    if (currentView === "albums") {
+      if (!albums?.length) {
+        refreshAlbums().catch(() => {});
       }
-    })()
-    return () => {
-      mounted = false
+    } else {
+      setSelectedAlbum(null);
     }
-  }, [currentView])
+  }, [currentView]);
 
-  // Load photos (all-photos, favorites, trash)
   useEffect(() => {
-    if (currentView === "albums" || selectedAlbum) return // album có API riêng
+    if (currentView === "albums" || selectedAlbum) return;
 
-    let mounted = true
-    ;(async () => {
+    let mounted = true;
+    (async () => {
       try {
-        setLoadingPhotos(true)
-        setErrorPhotos(null)
+        setLoadingPhotos(true);
+        setErrorPhotos(null);
 
         const params: any = {
           page: photosPagination.currentPage,
           limit: 12,
-        }
+        };
 
         switch (currentView) {
           case "favorites":
-            params.isFavorite = true
-            break
+            params.isFavorite = true;
+            break;
           case "trash":
-            params.isDeleted = true
-            break
+            params.isDeleted = true;
+            break;
         }
 
-        const res = await getPhotos(params)
+        const res = await getPhotos(params);
         if (mounted) {
-          setPhotos(res.data)
+          setPhotos(res.data);
           setPhotosPagination({
             currentPage: res.page,
             totalPages: res.totalPages,
             total: res.total,
-          })
+          });
         }
       } catch (err: any) {
-        if (mounted) setErrorPhotos(err.message ?? "Lỗi tải ảnh")
+        if (mounted) setErrorPhotos(err.message ?? "Lỗi tải ảnh");
       } finally {
-        if (mounted) setLoadingPhotos(false)
+        if (mounted) setLoadingPhotos(false);
       }
-    })()
-    return () => {
-      mounted = false
-    }
-  }, [currentView, photosPagination.currentPage, selectedAlbum])
+    })();
 
-  // Chọn album -> gọi API trực tiếp
+    return () => {
+      mounted = false;
+    };
+  }, [currentView, photosPagination.currentPage, selectedAlbum]);
+
   const handleAlbumSelect = async (album: Album) => {
-    setSelectedAlbum(album)
+    setSelectedAlbum(album);
     try {
-      setLoadingPhotos(true)
-      setErrorPhotos(null)
+      setLoadingPhotos(true);
+      setErrorPhotos(null);
       const res = await getPhotos({
         page: 1,
         limit: 18,
         albumId: album.albumId,
-      })
-      setPhotos(res.data)
+      });
+      setPhotos(res.data);
       setPhotosPagination({
         currentPage: res.page,
         totalPages: res.totalPages,
         total: res.total,
-      })
+      });
     } catch (err: any) {
-      setErrorPhotos(err.message ?? "Lỗi tải ảnh")
+      setErrorPhotos(err.message ?? "Lỗi tải ảnh");
     } finally {
-      setLoadingPhotos(false)
+      setLoadingPhotos(false);
     }
-  }
+  };
 
   const handleBackToAlbums = () => {
-    setSelectedAlbum(null)
-    setPhotos([])
-    setPhotosPagination({ currentPage: 1, totalPages: 1, total: 0 })
-  }
+    setSelectedAlbum(null);
+    setPhotos([]);
+    setPhotosPagination({ currentPage: 1, totalPages: 1, total: 0 });
+  };
 
   const handleViewChange = (view: ViewMode) => {
-    setCurrentView(view)
-    setSelectedAlbum(null)
-    setPhotosPagination({ currentPage: 1, totalPages: 1, total: 0 })
-  }
+    setCurrentView(view);
+    setSelectedAlbum(null);
+    setPhotosPagination({ currentPage: 1, totalPages: 1, total: 0 });
+  };
 
   const handlePageChange = async (page: number) => {
-    setPhotosPagination((prev) => ({ ...prev, currentPage: page }))
+    setPhotosPagination((prev) => ({ ...prev, currentPage: page }));
     try {
-      setLoadingPhotos(true)
-      setErrorPhotos(null)
+      setLoadingPhotos(true);
+      setErrorPhotos(null);
       const res = await getPhotos({
         page,
         limit: selectedAlbum ? 18 : 12,
         albumId: selectedAlbum?.albumId,
         isFavorite: currentView === "favorites" ? true : undefined,
         isDeleted: currentView === "trash" ? true : undefined,
-      })
-      setPhotos(res.data)
+      });
+      setPhotos(res.data);
       setPhotosPagination({
         currentPage: res.page,
         totalPages: res.totalPages,
         total: res.total,
-      })
+      });
     } catch (err: any) {
-      setErrorPhotos(err.message ?? "Lỗi tải ảnh")
+      setErrorPhotos(err.message ?? "Lỗi tải ảnh");
     } finally {
-      setLoadingPhotos(false)
+      setLoadingPhotos(false);
     }
-  }
+  };
 
   const handleFavoriteToggle = async (photoId: number) => {
-    const updatedPhoto = await toggleFavorite(photoId)
+    const updatedPhoto = await toggleFavorite(photoId);
     setPhotos((prev) =>
       prev.map((photo) =>
         photo.photoId === updatedPhoto.photoId ? updatedPhoto : photo
       )
-    )
-    toast.message(updatedPhoto.isFavorite ? "Ảnh đã được thêm vào yêu thích." : "Ảnh đã được gỡ khỏi yêu thích.")
-  }
+    );
+    toast.message(
+      updatedPhoto.isFavorite
+        ? "Ảnh đã được thêm vào yêu thích."
+        : "Ảnh đã được gỡ khỏi yêu thích."
+    );
+  };
 
   const refreshPhotos = async () => {
     const res = await getPhotos({
@@ -173,44 +172,65 @@ export function Gallery() {
       albumId: selectedAlbum?.albumId,
       isFavorite: currentView === "favorites" ? true : undefined,
       isDeleted: currentView === "trash" ? true : undefined,
-    })
-    setPhotos(res.data)
+    });
+    setPhotos(res.data);
     setPhotosPagination({
       currentPage: res.page,
       totalPages: res.totalPages,
       total: res.total,
-    })
-  }
+    });
+  };
 
   const handleDeleteToggle = async (photoId: number) => {
-    await toggleSoftDelete(photoId)
-    await refreshPhotos()
-    toast.message("Ảnh đã được chuyển vào thùng rác.")
-  }
+    await toggleSoftDelete(photoId);
+    await refreshPhotos();
+    toast.message("Ảnh đã được chuyển vào thùng rác.");
+  };
 
   const handlePermanentDelete = async (photoId: number) => {
-    await hardDelete(photoId)
-    await refreshPhotos()
-    toast.message("Ảnh đã được xóa vĩnh viễn.")
-  }
+    await hardDelete(photoId);
+    await refreshPhotos();
+    toast.message("Ảnh đã được xóa vĩnh viễn.");
+  };
+
+  const handleCreateAlbum = async (name: string, description?: string) => {
+    try {
+      await createAlbum(name, description);
+      toast.success("Album đã được tạo thành công!");
+      refreshAlbums();
+    } catch (error: any) {
+      toast.error(error.message ?? "Lỗi khi tạo album");
+      throw error;
+    }
+  };
+
+  const handleAlbumDelete = async (albumId: number) => {
+    try {
+      await deleteAlbum(albumId);
+      toast.success("Album đã được xóa thành công!");
+      refreshAlbums();
+    } catch (error: any) {
+      toast.error(error.message ?? "Lỗi khi xóa album");
+    }
+  };
 
   const getViewTitle = () => {
-    if (selectedAlbum) return selectedAlbum.name
+    if (selectedAlbum) return selectedAlbum.name;
     switch (currentView) {
       case "albums":
-        return "Albums"
+        return "Albums";
       case "all-photos":
-        return "Tất cả ảnh"
+        return "Tất cả ảnh";
       case "favorites":
-        return "Yêu thích"
+        return "Yêu thích";
       case "trash":
-        return "Thùng rác"
+        return "Thùng rác";
       default:
-        return ""
+        return "";
     }
-  }
+  };
 
-  const isShowingPhotos = currentView !== "albums" || selectedAlbum
+  const isShowingPhotos = currentView !== "albums" || !!selectedAlbum;
 
   return (
     <div className="flex h-screen bg-gallery-bg">
@@ -248,7 +268,12 @@ export function Gallery() {
             ) : errorAlbums ? (
               <div className="p-6 text-red-600">{errorAlbums}</div>
             ) : (
-              <AlbumGrid albums={albums} onAlbumSelect={handleAlbumSelect} />
+              <AlbumGrid 
+                albums={albums} 
+                onAlbumSelect={handleAlbumSelect}
+                onAlbumDelete={handleAlbumDelete}
+                onCreateAlbum={() => setIsCreateAlbumModalOpen(true)}
+              />
             )
           ) : (
             <>
@@ -283,8 +308,18 @@ export function Gallery() {
 
       <UploadModal
         isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
+        onClose={() => {
+          setIsUploadModalOpen(false);
+          if (currentView === "albums") refreshAlbums();
+          else refreshPhotos();
+        }}
+      />
+
+      <CreateAlbumModal
+        isOpen={isCreateAlbumModalOpen}
+        onClose={() => setIsCreateAlbumModalOpen(false)}
+        onCreateAlbum={handleCreateAlbum}
       />
     </div>
-  )
+  );
 }

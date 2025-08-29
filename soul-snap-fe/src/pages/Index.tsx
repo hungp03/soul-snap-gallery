@@ -1,13 +1,12 @@
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider, useAuth } from "@/contexts/auth-context"
+import { GalleryProvider } from "@/contexts/gallery-context"
 import { Gallery } from "@/components/gallery"
 import { Skeleton } from "@/components/ui/skeleton"
 import { LoginPage } from "@/components/login-page"
 
 function AppContent() {
   const { user, isLoading } = useAuth()
-
-
 
   if (isLoading) {
     return (
@@ -21,7 +20,6 @@ function AppContent() {
     )
   }
 
-
   return user ? <Gallery /> : <LoginPage />
 }
 
@@ -29,7 +27,9 @@ const Index = () => {
   return (
     <ThemeProvider defaultTheme="light" storageKey="soulsnap-theme">
       <AuthProvider>
-        <AppContent />
+        <GalleryProvider>  
+          <AppContent />
+        </GalleryProvider>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -1,98 +1,87 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { S3Client, DeleteObjectsCommand } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
-import { v4 as uuidv4 } from 'uuid';
-import sharp from 'sharp';
+import { AlbumsService } from '@albums/albums.service';
+import { PhotosService } from 'photos/photos.service';
+import { UploadPhotoDto } from './dto/upload-photo.dto';
+import { User } from '@users/entities/user.entity';
+import { FileService } from '@common/services/file.service';
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 @Injectable()
 export class UploadService {
-  private s3: S3Client;
-  private bucketName: string;
+  constructor(
+    private readonly fileService: FileService,
+    private readonly albumsService: AlbumsService,
+    private readonly photosService: PhotosService,
+  ) {}
 
-  constructor(private readonly configService: ConfigService) {
-    const bucket = this.configService.get<string>('s3.bucket');
-    if (!bucket) throw new Error('S3 bucket name is not defined');
-
-    this.bucketName = bucket;
-    this.s3 = new S3Client({
-      region: this.configService.get<string>('s3.region'),
-      endpoint: this.configService.get<string>('s3.endpoint') || undefined,
-      forcePathStyle: this.configService.get<boolean>('s3.forcePathStyle') ?? true, 
-      credentials: {
-        accessKeyId: this.configService.get<string>('s3.accessKeyId')!,
-        secretAccessKey: this.configService.get<string>('s3.secretAccessKey')!,
-      },
-    });
-  }
-
-  async uploadPhoto(file: Express.Multer.File): Promise<{ filePath: string; thumbnail: string; }> {
-    if (!file?.mimetype?.startsWith('image/')) {
-      throw new BadRequestException('File must be an image');
+  async uploadPhotos(
+    files: Express.Multer.File[],
+    uploadDto: UploadPhotoDto,
+    user: User,
+  ) {
+    if (!files || files.length === 0) {
+      throw new BadRequestException('No files uploaded');
     }
 
-    const fileId = uuidv4();
-    const ext = (file.originalname?.split('.').pop() || 'jpg').toLowerCase();
-    const safeExt = ext.replace(/[^a-z0-9]/g, '') || 'jpg';
-    const fileName = `${fileId}.${safeExt}`;
-    const originalKey = `photos/${fileName}`;
-    const thumbKey = `thumbnails/thumb_${fileName}`;
-
-    try {
-      const originalUpload = new Upload({
-        client: this.s3,
-        params: {
-          Bucket: this.bucketName,
-          Key: originalKey,
-          Body: file.buffer,
-          ContentType: file.mimetype || 'application/octet-stream',
-          CacheControl: 'max-age=31536000,immutable',
-        },
-      });
-      await originalUpload.done();
-
-      const thumbnailBuffer = await sharp(file.buffer)
-        .resize(300, 300, { fit: 'cover', position: 'center' })
-        .jpeg({ quality: 80 })
-        .toBuffer();
-
-      const thumbUpload = new Upload({
-        client: this.s3,
-        params: {
-          Bucket: this.bucketName,
-          Key: thumbKey,
-          Body: thumbnailBuffer,
-          ContentType: 'image/jpeg',
-          CacheControl: 'max-age=31536000,immutable',
-        },
-      });
-      await thumbUpload.done();
-
-      return { filePath: originalKey, thumbnail: thumbKey };
-    } catch (err) {
-      console.error('Error uploading to S3:', err);
-      throw new BadRequestException('Failed to upload file');
-    }
-  }
-
-  async deletePhoto(filePath: string, thumbnail: string): Promise<void> {
-    if (!filePath && !thumbnail) return;
-
-    try {
-      const objects: { Key: string }[] = [];
-      if (filePath) objects.push({ Key: filePath });
-      if (thumbnail) objects.push({ Key: thumbnail });
-
-      if (objects.length === 0) return;
-
-      await this.s3.send(
-        new DeleteObjectsCommand({
-          Bucket: this.bucketName,
-          Delete: { Objects: objects },
-        })
+    // check size
+    const oversizeFiles = files.filter((f) => f.size > MAX_FILE_SIZE);
+    if (oversizeFiles.length > 0) {
+      const oversizeNames = oversizeFiles.map((f) => f.originalname).join(', ');
+      throw new BadRequestException(
+        `Files exceed 10MB limit: ${oversizeNames}. All files rejected.`,
       );
-    } catch (err) {
-      console.error('Failed to delete from S3:', err);
+    }
+
+    // verify album
+    const album = await this.albumsService.findOne(
+      user.userId,
+      uploadDto.albumId,
+    );
+    if (!album) {
+      throw new BadRequestException(
+        'Album not found or you do not have permission to access it',
+      );
+    }
+
+    const results: any[] = [];
+    const uploadedFiles: { filePath: string; thumbnail?: string }[] = [];
+
+    try {
+      for (const file of files) {
+        if (file.size === 0) {
+          throw new BadRequestException(`File ${file.originalname} is empty`);
+        }
+
+        // upload to S3
+        const { filePath, thumbnail } = await this.fileService.uploadPhoto(file);
+        uploadedFiles.push({ filePath, thumbnail });
+
+        // save DB
+        const photo = await this.photosService.create({
+          albumId: uploadDto.albumId,
+          filePath,
+          thumbnail,
+          title: uploadDto.title || file.originalname,
+        });
+
+        results.push(photo);
+      }
+
+      return {
+        message: `Successfully uploaded ${results.length} photos`,
+        photos: results,
+      };
+    } catch (error) {
+      // rollback
+      for (const uf of uploadedFiles) {
+        try {
+          await this.fileService.deletePhoto(uf.filePath, uf.thumbnail || '');
+        } catch (cleanupError) {
+          console.error('Failed to cleanup file:', cleanupError);
+        }
+      }
+      throw error;
     }
   }
 }

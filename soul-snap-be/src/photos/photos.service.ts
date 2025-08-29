@@ -10,12 +10,14 @@ import { createPaginationResult } from '@common/utils/pagination.util';
 import { PaginationResult } from '@common/interfaces/pagination.interface';
 import { S3Service } from '@common/services/s3.service';
 import { PhotoResponseDto } from './dto/photo-response.dto';
+import { FileService } from '@common/services/file.service';
 
 @Injectable()
 export class PhotosService {
   constructor(
     @InjectRepository(Photo)
     private photosRepository: Repository<Photo>,
+    private fileService: FileService,
     private s3Service: S3Service,
   ) { }
 
@@ -104,10 +106,21 @@ export class PhotosService {
     const saved = await this.photosRepository.save(photo);
     return this.toPhotoResponseDto(saved);
   }
+  
   async hardDelete(userId: number, photoId: number): Promise<void> {
     const photo = await this.findOne(userId, photoId);
-    await this.photosRepository.remove(photo);
+
+    await this.photosRepository.manager.transaction(async (manager) => {
+      await manager.remove(photo);
+      try {
+        await this.fileService.deletePhoto(photo.filePath, photo.thumbnail);
+      } catch (err) {
+        console.error('Failed to delete file from S3:', err);
+      }
+    });
   }
+
+
 
   private async toPhotoResponseDto(p: Photo): Promise<PhotoResponseDto> {
     return {
