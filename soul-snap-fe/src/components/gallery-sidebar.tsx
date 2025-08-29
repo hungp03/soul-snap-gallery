@@ -26,6 +26,7 @@ interface GallerySidebarProps {
   albumCount: number
   favoriteCount: number
   trashCount: number
+  onUploadClick: () => void
 }
 
 const menuItems = [
@@ -41,7 +42,8 @@ export function GallerySidebar({
   photoCount,
   albumCount,
   favoriteCount,
-  trashCount
+  trashCount,
+  onUploadClick
 }: GallerySidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const { theme, setTheme } = useTheme()
@@ -95,7 +97,7 @@ export function GallerySidebar({
 
       {/* Upload Button */}
       <div className="p-4">
-        <Button className="w-full" variant="default">
+        <Button className="w-full" variant="default" onClick={onUploadClick}>
           <Upload className="h-4 w-4 mr-2" />
           Tải ảnh lên
         </Button>

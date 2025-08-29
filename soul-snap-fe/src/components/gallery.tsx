@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button"
 import { GallerySidebar } from "./gallery-sidebar"
 import { PhotoGrid } from "./photo-grid"
 import { AlbumGrid } from "./album-grid"
+import { UploadModal } from "./upload-modal"
 import { ViewMode, Photo, Album } from "@/types/gallery"
 import { mockPhotos, mockAlbums } from "@/data/mockData"
 
 export function Gallery() {
   const [currentView, setCurrentView] = useState<ViewMode>('all-photos')
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null)
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false)
   const [photos, setPhotos] = useState<Photo[]>(mockPhotos)
   const [albums] = useState<Album[]>(mockAlbums)
 
@@ -125,6 +127,7 @@ export function Gallery() {
         albumCount={albums.length}
         favoriteCount={favoriteCount}
         trashCount={trashCount}
+         onUploadClick={() => setIsUploadModalOpen(true)}
       />
 
       <main className="flex-1 flex flex-col overflow-hidden">
@@ -156,6 +159,10 @@ export function Gallery() {
           {renderContent()}
         </div>
       </main>
+      <UploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+      />
     </div>
   )
 }

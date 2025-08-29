@@ -17,12 +17,11 @@
     "paths": {
       "@common/*": ["common/*"],
       "@config/*": ["config/*"],
-      "@modules/*": ["modules/*"],
-      "@albums/*": ["modules/albums/*"],
-      "@auth/*": ["modules/auth/*"],
-      "@photos/*": ["modules/photos/*"],
-      "@upload/*": ["modules/upload/*"],
-      "@users/*": ["modules/users/*"]
+      "@albums/*": ["albums/*"],
+      "@auth/*": ["auth/*"],
+      "@photos/*": ["photos/*"],
+      "@upload/*": ["upload/*"],
+      "@users/*": ["users/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
