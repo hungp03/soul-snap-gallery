@@ -58,7 +58,7 @@ export function Gallery() {
 
         const params: any = {
           page: photosPagination.currentPage,
-          limit: 12,
+          limit: 18,
         };
 
         switch (currentView) {
