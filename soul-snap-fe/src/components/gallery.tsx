@@ -133,7 +133,7 @@ export function Gallery() {
       setErrorPhotos(null);
       const res = await getPhotos({
         page,
-        limit: selectedAlbum ? 18 : 12,
+        limit: selectedAlbum ? 18 : 18,
         albumId: selectedAlbum?.albumId,
         isFavorite: currentView === "favorites" ? true : undefined,
         isDeleted: currentView === "trash" ? true : undefined,
@@ -168,7 +168,7 @@ export function Gallery() {
   const refreshPhotos = async () => {
     const res = await getPhotos({
       page: photosPagination.currentPage,
-      limit: selectedAlbum ? 18 : 12,
+      limit: selectedAlbum ? 18 : 18,
       albumId: selectedAlbum?.albumId,
       isFavorite: currentView === "favorites" ? true : undefined,
       isDeleted: currentView === "trash" ? true : undefined,
