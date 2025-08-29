@@ -22,10 +22,6 @@ import { cn } from "@/lib/utils"
 interface GallerySidebarProps {
   currentView: ViewMode
   onViewChange: (view: ViewMode) => void
-  photoCount: number
-  albumCount: number
-  favoriteCount: number
-  trashCount: number
   onUploadClick: () => void
 }
 
@@ -39,25 +35,11 @@ const menuItems = [
 export function GallerySidebar({
   currentView,
   onViewChange,
-  photoCount,
-  albumCount,
-  favoriteCount,
-  trashCount,
   onUploadClick
 }: GallerySidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false)
   const { theme, setTheme } = useTheme()
   const { user, logout } = useAuth()
-
-  const getCounts = (viewId: ViewMode) => {
-    switch (viewId) {
-      case 'all-photos': return photoCount
-      case 'albums': return albumCount
-      case 'favorites': return favoriteCount
-      case 'trash': return trashCount
-      default: return 0
-    }
-  }
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
@@ -123,9 +105,6 @@ export function GallerySidebar({
               >
                 <item.icon className="h-4 w-4 mr-3" />
                 <span className="flex-1 text-left">{item.label}</span>
-                <span className="text-sm text-muted-foreground">
-                  {getCounts(item.id)}
-                </span>
               </Button>
             </li>
           ))}

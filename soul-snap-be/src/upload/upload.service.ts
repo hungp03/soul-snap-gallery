@@ -70,7 +70,6 @@ export class UploadService {
 
       return { filePath: originalKey, thumbnail: thumbKey };
     } catch (err) {
-      // In ra nguyên lỗi để debug, nhưng trả message chung cho client
       console.error('Error uploading to S3:', err);
       throw new BadRequestException('Failed to upload file');
     }
@@ -94,7 +93,6 @@ export class UploadService {
       );
     } catch (err) {
       console.error('Failed to delete from S3:', err);
-      // tùy bạn có muốn throw hay chỉ log
     }
   }
 }

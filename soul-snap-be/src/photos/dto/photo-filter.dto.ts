@@ -1,5 +1,5 @@
 import { IsOptional, IsBoolean, IsNumber } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { PaginationDto } from '@common/dto/pagination.dto';
 
 export class PhotoFilterDto extends PaginationDto {
@@ -9,12 +9,12 @@ export class PhotoFilterDto extends PaginationDto {
   albumId?: number;
 
   @IsOptional()
-  @Type(() => Boolean)
-  @IsBoolean()
-  isFavorite?: boolean;
-
-  @IsOptional()
-  @Type(() => Boolean)
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean()
   isDeleted?: boolean = false;
+
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  isFavorite?: boolean;
 }

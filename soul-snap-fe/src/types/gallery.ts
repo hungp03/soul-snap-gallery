@@ -1,22 +1,35 @@
 export interface Photo {
-  id: string
-  title: string
-  url: string
-  thumbnail: string
-  dateAdded: string
-  size: string
+  photoId: number
+  albumId: number
+  thumbnailUrl: string
+  fileUrl: string
+  title: string | null
   isFavorite: boolean
   isDeleted: boolean
-  albumId?: string
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Album {
-  id: string
-  name: string
-  coverImage: string
-  photoCount: number
-  dateCreated: string
-  photos: Photo[]
+  albumId: number;
+  userId: number;
+  name: string;
+  description: string | null;
+  createdAt: string;   
+  updatedAt: string;   
+  photoCount: number;
+  thumbnailPhoto: null | {
+    photoId: number;
+    thumbnail: string; 
+  };
+}
+
+export interface PaginationResult<T> {
+  data: T[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
 }
 
 export type ViewMode = 'all-photos' | 'albums' | 'favorites' | 'trash'

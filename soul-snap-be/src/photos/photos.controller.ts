@@ -35,14 +35,6 @@ export class PhotosController {
     return this.photosService.findAll(user.userId, filterDto);
   }
 
-  @Get(':id')
-  findOne(
-    @CurrentUser() user: User,
-    @Param('id') id: string,
-  ) {
-    return this.photosService.findOne(user.userId, +id);
-  }
-
   @Patch(':id')
   update(
     @CurrentUser() user: User,
@@ -60,13 +52,14 @@ export class PhotosController {
     return this.photosService.toggleFavorite(user.userId, +id);
   }
 
-  @Delete(':id/soft')
-  softDelete(
+  @Patch(':id/soft-delete')
+  toggle(
     @CurrentUser() user: User,
-    @Param('id') id: string,
+    @Param('id') id: string
   ) {
-    return this.photosService.softDelete(user.userId, +id);
+    return this.photosService.toggleSoftDelete(user.userId, +id);
   }
+
 
   @Delete(':id/hard')
   hardDelete(
@@ -74,13 +67,5 @@ export class PhotosController {
     @Param('id') id: string,
   ) {
     return this.photosService.hardDelete(user.userId, +id);
-  }
-
-  @Patch(':id/restore')
-  restore(
-    @CurrentUser() user: User,
-    @Param('id') id: string,
-  ) {
-    return this.photosService.restore(user.userId, +id);
   }
 }

@@ -38,14 +38,6 @@ export class AlbumsController {
     return this.albumsService.findAll(user.userId, paginationDto);
   }
 
-  @Get(':id')
-  findOne(
-    @CurrentUser() user: User,
-    @Param('id') id: string,
-  ) {
-    return this.albumsService.findOne(user.userId, +id);
-  }
-
   @Patch(':id')
   update(
     @CurrentUser() user: User,

@@ -87,8 +87,7 @@ export class AlbumsService {
 
   async findOne(userId: number, albumId: number): Promise<Album> {
     const album = await this.albumsRepository.findOne({
-      where: { albumId, userId },
-      relations: ['photos'],
+      where: { albumId, userId }
     });
 
     if (!album) {
