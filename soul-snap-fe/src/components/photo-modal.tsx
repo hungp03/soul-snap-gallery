@@ -46,21 +46,23 @@ export function PhotoModal({
 
       <div className="relative max-w-7xl max-h-full w-full h-full flex flex-col">
         <div className="absolute top-0 left-0 right-0 z-10 bg-black/50 backdrop-blur-sm">
-          <div className="flex items-center justify-between p-4">
-            <div className="flex items-center gap-4">
-              <h2 className="text-white font-medium">{photo.title}</h2>
-              <div className="text-white/70 text-sm">
+          <div className="flex items-center justify-between p-2 sm:p-4">
+            <div className="hidden sm:flex items-center gap-4 min-w-0">
+              <h2 className="text-white font-medium truncate max-w-[40vw]">
+                {photo.title}
+              </h2>
+              <div className="text-white/70 text-sm whitespace-nowrap">
                 {new Date(photo.createdAt).toLocaleString("vi-VN", {
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",
                   hour: "2-digit",
-                  minute: "2-digit"
+                  minute: "2-digit",
                 })}
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               {!showDeleted && (
                 <Button
                   size="icon"
@@ -77,20 +79,11 @@ export function PhotoModal({
                 </Button>
               )}
 
-              <a
-                href={photo.fileUrl ?? "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="text-white hover:bg-white/20"
-                >
+              <a href={photo.fileUrl ?? "#"} target="_blank" rel="noopener noreferrer">
+                <Button size="icon" variant="ghost" className="text-white hover:bg-white/20">
                   <Download className="h-5 w-5" />
                 </Button>
               </a>
-
 
               {showDeleted ? (
                 <>
@@ -103,17 +96,11 @@ export function PhotoModal({
                       onClose()
                     }}
                     trigger={
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="text-white hover:bg-white/20"
-                      >
+                      <Button size="icon" variant="ghost" className="text-white hover:bg-white/20">
                         <RotateCcw className="h-5 w-5" />
                       </Button>
                     }
                   />
-
-
                   <ConfirmDialog
                     title="Xóa vĩnh viễn?"
                     description="Ảnh này sẽ bị xóa hoàn toàn và không thể khôi phục."
@@ -124,11 +111,7 @@ export function PhotoModal({
                       onClose()
                     }}
                     trigger={
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className=" hover:bg-white/20 text-red-500"
-                      >
+                      <Button size="icon" variant="ghost" className="text-red-500 hover:bg-white/20">
                         <Trash2 className="h-5 w-5" />
                       </Button>
                     }
@@ -144,40 +127,36 @@ export function PhotoModal({
                     onClose()
                   }}
                   trigger={
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="text-white hover:bg-white/20"
-                    >
+                    <Button size="icon" variant="ghost" className="text-white hover:bg-white/20">
                       <Trash2 className="h-5 w-5" />
                     </Button>
                   }
                 />
               )}
 
-
               <Button
                 size="icon"
                 variant="ghost"
-                className="text-white hover:bg-white/20"
                 onClick={onClose}
+                className="text-white hover:bg-white/20 sm:top-auto sm:right-auto
+                       absolute sm:static top-2 right-2 bg-black/50 sm:bg-transparent rounded-full"
               >
                 <X className="h-5 w-5" />
               </Button>
             </div>
           </div>
         </div>
-
-        <div className="flex-1 flex items-center justify-center p-4 pt-20">
+        <div className="flex-1 flex items-center justify-center p-4 pt-14 sm:pt-20">
           <img
             src={photo.fileUrl}
             alt={photo.title}
-            className="max-h-[calc(100vh-8rem)] max-w-[calc(100vw-8rem)] object-contain rounded-lg"
+            className="max-h-[calc(100vh-6rem)] sm:max-h-[calc(100vh-8rem)]
+                   max-w-[calc(100vw-2rem)] object-contain rounded-lg"
             loading="lazy"
           />
         </div>
-
       </div>
     </div>
+
   )
 }
